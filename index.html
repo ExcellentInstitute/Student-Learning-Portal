@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excellent Institute - Student Learning Portal Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* --- Master Grid Layout --- */
+        .portal-layout {
+            display: block;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- Header Section --- */
+        .hub-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-group img.logo {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            box-shadow: var(--shadow);
+        }
+
+        .brand-group h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        .brand-group span {
+            color: var(--accent);
+        }
+
+        .student-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* --- Categories and Grids --- */
+        .category-section {
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* --- Cards Layout --- */
+        .hub-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .hub-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--card-color, var(--accent));
+        }
+
+        .hub-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-color: var(--card-color, var(--accent));
+        }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            width: 55px;
+            height: 55px;
+            background-color: var(--card-bg, #f1f5f9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .card-info h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .card-info p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .card-action-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--card-color, var(--accent));
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 16px;
+        }
+
+        /* --- Fullscreen Embedded Frame System --- */
+        #frame-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            z-index: 99999;
+            flex-direction: column;
+        }
+
+        .viewer-navbar {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .viewer-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .viewer-title-group h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .back-hub-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .back-hub-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .embedded-iframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            background-color: white;
+        }
+
+        /* --- Universal Background Watermark --- */
+        .watermark-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45vw;
+            max-width: 400px;
+            opacity: 0.03; /* Kept very subtle so text remains highly scannable */
+            pointer-events: none; 
+            z-index: 1;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* --- Responsive Viewports --- */
+        @media (max-width: 640px) {
+            .hub-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .portal-layout {
+                padding: 20px 16px;
+            }
+            .watermark-bg {
+                width: 75vw;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <img src="images/logo.png" alt="Excellent Institute Watermark" class="watermark-bg">
+
+    <div class="portal-layout" id="main-hub-view">
+        
+        <header class="hub-header">
+            <div class="brand-group">
+                <img src="images/logo.png" alt="Excellent Institute Logo" class="logo">
+                <h1>Excellent Institute <span>Study Portal</span></h1>
+            </div>
+            <div class="student-badge">🔒 Secure Gateway Connection</div>
+        </header>
+
+        <main id="portal-categories-container">
+            </main>
+
+    </div>
+
+    <div id="frame-viewer">
+        <nav class="viewer-navbar">
+            <div class="viewer-title-group">
+                <button class="back-hub-btn" onclick="closeAppViewer()">◀ Return to Main Hub</button>
+                <h2 id="viewer-current-title">Loading Module...</h2>
+            </div>
+            <div style="font-size: 0.85rem; opacity: 0.7; font-weight: 500;">Excellent Institute Portal Environment</div>
+        </nav>
+        <iframe src="" id="app-viewport-iframe" class="embedded-iframe" title="Note Viewport"></iframe>
+    </div>
+
+    <script>
+        const coursesData = [
+            {
+                title: "English Typing Practice",
+                description: "Master speed alignment, touch-typing muscle patterns, and error correction keys.",
+                url: "https://excellentinstitute.github.io/typing/",
+                category: "Fundamental Key Skills",
+                icon: "⌨️",
+                color: "#10b981",
+                bgColor: "#e0f2fe"
+            },
+            {
+                title: "Hardware Components",
+                description: "Deep dive inspection inside architecture, motherboard processing units, and configurations.",
+                url: "https://excellentinstitute.github.io/components/",
+                category: "Fundamental Key Skills",
+                icon: "🔌",
+                color: "#6366f1",
+                bgColor: "#e0e7ff"
+            },
+            {
+                title: "Computer Fundamentals",
+                description: "Core binary memory concepts, structural operations, and introductory execution blocks.",
+                url: "https://excellentinstitute.github.io/fundamental/",
+                category: "Fundamental Key Skills",
+                icon: "🧠",
+                color: "#f59e0b",
+                bgColor: "#fef3c7"
+            },
+            {
+                title: "Operating Systems (OS)",
+                description: "Understanding file hierarchies, environments, system operations, and setup properties.",
+                url: "https://excellentinstitute.github.io/OS/",
+                category: "Fundamental Key Skills",
+                icon: "💽",
+                color: "#ec4899",
+                bgColor: "#fce7f3"
+            },
+            {
+                title: "Microsoft Word Complete Guide",
+                description: "Format advanced structures, write business letters, drop caps, and handle automated print settings.",
+                url: "https://excellentinstitute.github.io/MSword/",
+                category: "Office Productivity Suite",
+                icon: "📘",
+                color: "#1e40af",
+                bgColor: "#eff6ff"
+            },
+            {
+                title: "Microsoft Excel Masterclass",
+                description: "Harness conditional structures, mathematical equations, lookups, and Pivot data evaluation.",
+                url: "https://excellentinstitute.github.io/MSexcel/",
+                category: "Office Productivity Suite",
+                icon: "📊",
+                color: "#107c41",
+                bgColor: "#dcfce7"
+            },
+            {
+                title: "Microsoft PowerPoint Masterclass",
+                description: "Build cinematic animations, dynamic transitions, slide rules, and target Action properties.",
+                url: "https://excellentinstitute.github.io/MS_powerpoint/",
+                category: "Office Productivity Suite",
+                icon: "📽️",
+                color: "#c2410c",
+                bgColor: "#ffedd5"
+            },
+            {
+                title: "Cyber Security Foundations",
+                description: "Secure private variables, lock profiles, defend system registries, and mitigate web traps.",
+                url: "https://excellentinstitute.github.io/Cyber-Security/",
+                category: "Advanced Technical Modules",
+                icon: "🛡️",
+                color: "#4338ca",
+                bgColor: "#e0e7ff"
+            }
+        ];
+
+        function renderPortalHub() {
+            const container = document.getElementById('portal-categories-container');
+            container.innerHTML = "";
+
+            const categories = [...new Set(coursesData.map(course => course.category))];
+
+            categories.forEach(cat => {
+                const section = document.createElement('section');
+                section.className = 'category-section';
+
+                section.innerHTML = `
+                    <div class="category-title">
+                        <span>📁</span> ${cat}
+                    </div>
+                    <div class="category-grid" id="grid-${cat.replace(/\s+/g, '-')}"></div>
+                `;
+                container.appendChild(section);
+
+                const grid = document.getElementById(`grid-${cat.replace(/\s+/g, '-')}`);
+
+                coursesData.filter(c => c.category === cat).forEach(course => {
+                    const card = document.createElement('div');
+                    card.className = 'hub-card';
+                    card.style.setProperty('--card-color', course.color);
+                    card.style.setProperty('--card-bg', course.bgColor);
+                    card.onclick = () => openAppViewer(course.url, course.title);
+
+                    card.innerHTML = `
+                        <div class="card-top">
+                            <div class="card-icon">${course.icon}</div>
+                            <div class="card-info">
+                                <h3>${course.title}</h3>
+                                <p>${course.description}</p>
+                            </div>
+                        </div>
+                        <div class="card-action-label">Launch Application Environment →</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        function openAppViewer(targetUrl, targetTitle) {
+            document.getElementById('viewer-current-title').innerText = targetTitle;
+            document.getElementById('app-viewport-iframe').src = targetUrl;
+            
+            document.getElementById('main-hub-view').style.display = 'none';
+            document.getElementById('frame-viewer').style.display = 'flex';
+        }
+
+        function closeAppViewer() {
+            document.getElementById('app-viewport-iframe').src = "";
+            
+            document.getElementById('frame-viewer').style.display = 'none';
+            document.getElementById('main-hub-view').style.display = 'block';
+        }
+
+        window.onload = renderPortalHub;
+    </script>
+</body>
+</html>
