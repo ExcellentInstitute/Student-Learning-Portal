@@ -4,95 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excellent Institute - Student Learning Portal Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 1. Load the official Google Security Script for Authentication -->
+    <!-- 1. Load the official Google Security Script for Silent Verification -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
-    <!-- GATEKEEPER SECURITY SCRIPT -->
-    <script>
-        // Check if the user is already authenticated
-        if (localStorage.getItem('excellent_auth') !== 'true') {
-            document.addEventListener("DOMContentLoaded", function() {
-                // Hide main portal content
-                document.body.style.visibility = "hidden"; 
-                document.body.style.overflow = "hidden";
-                
-                // Build the Lock Screen Overlay
-                const lockDiv = document.createElement('div');
-                lockDiv.id = "security-gatekeeper";
-                lockDiv.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;";
-                
-                lockDiv.innerHTML = `
-                    <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
-                        <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Restricted Access 🛡️</h2>
-                        <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">Please verify your Excellent Institute identity to continue.</p>
-                        
-                        <!-- The Google Sign-In Setup -->
-                        <div id="g_id_onload"
-                             data-client_id="YOUR_GOOGLE_CLIENT_ID_GOES_HERE"
-                             data-callback="handleGoogleLogin"
-                             data-auto_prompt="false">
-                        </div>
-                        
-                        <!-- The Visual Google Button -->
-                        <div class="g_id_signin"
-                             data-type="standard"
-                             data-size="large"
-                             data-theme="outline"
-                             data-text="sign_in_with"
-                             data-shape="rectangular"
-                             data-logo_alignment="left"
-                             style="display:flex; justify-content:center;">
-                        </div>
-                        
-                        <!-- Error Message -->
-                        <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color:#fca5a5; margin-top:20px; font-weight:600; line-height:1.5;">
-                            ❌ Access Denied.<br><br>Unauthorized account. Please use the Excellent Institute mobile APK.
-                        </div>
-                    </div>
-                `;
-                
-                document.documentElement.appendChild(lockDiv);
-            });
-        }
-
-        // This function handles the response from Google
-        function handleGoogleLogin(response) {
-            try {
-                const responsePayload = decodeJwtResponse(response.credential);
-                const userEmail = responsePayload.email.toLowerCase();
-
-                // CHECKING FOR EXACT AUTHORIZED EMAIL
-                if (userEmail === 'excellent.institut@gmail.com') {
-                    localStorage.setItem('excellent_auth', 'true');
-                    document.getElementById('security-gatekeeper').remove();
-                    document.body.style.visibility = "visible";
-                    document.body.style.overflow = "auto";
-                } else {
-                    document.getElementById('authError').style.display = "block";
-                }
-            } catch (e) {
-                console.error("Authentication Error", e);
-            }
-        }
-
-        // Decode Google's JWT token
-        function decodeJwtResponse(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        // Function to Force Refresh Security
-        function forceSecurityRefresh() {
-            localStorage.removeItem('excellent_auth');
-            location.reload(true); // Forces a hard reload of the page
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -121,6 +37,8 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
+            /* Hide body initially until Google verification passes */
+            visibility: hidden; 
         }
 
         /* --- Custom Scrollbar --- */
@@ -175,7 +93,7 @@
         .brand-group span {
             color: var(--accent);
         }
-        
+
         .header-actions {
             display: flex;
             align-items: center;
@@ -190,22 +108,26 @@
             font-size: 0.85rem;
             font-weight: 600;
         }
-        
+
         .refresh-btn {
-            background-color: #ef4444;
-            color: white;
-            border: none;
+            background-color: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
             padding: 8px 16px;
             border-radius: 30px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
+            box-shadow: var(--shadow);
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
-        .refresh-btn:hover { background-color: #dc2626; transform: translateY(-2px); }
+
+        .refresh-btn:hover {
+            background-color: var(--border);
+        }
 
         /* --- Categories and Grids --- */
         .category-section {
@@ -374,7 +296,7 @@
             transform: translate(-50%, -50%);
             width: 45vw;
             max-width: 400px;
-            opacity: 0.03;
+            opacity: 0.03; 
             pointer-events: none; 
             z-index: 1;
             border-radius: 50%;
@@ -388,7 +310,10 @@
                 align-items: flex-start;
                 gap: 16px;
             }
-            .header-actions { flex-direction: column; align-items: flex-start; }
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
             .portal-layout {
                 padding: 20px 16px;
             }
@@ -400,6 +325,40 @@
 </head>
 <body>
 
+    <!-- ========================================== -->
+    <!-- SILENT GOOGLE SECURITY VERIFICATION        -->
+    <!-- ========================================== -->
+    <div id="security-lock-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;">
+        <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
+            <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Verifying Connection 🛡️</h2>
+            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
+            
+            <!-- Google Sign-In Setup. PASTE YOUR CLIENT ID HERE -->
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID_GOES_HERE"
+                 data-callback="handleGoogleLogin"
+                 data-auto_prompt="true">
+            </div>
+            
+            <!-- Fallback Visual Google Button if Auto-Prompt fails -->
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left"
+                 style="display:flex; justify-content:center;">
+            </div>
+            
+            <!-- Error Message for wrong email -->
+            <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color:#fca5a5; margin-top:20px; font-weight:600; line-height:1.5;">
+                ❌ Access Denied.<br><br>Unauthorized account detected. Please use the Excellent Institute mobile APK to view this content.
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN HUB CONTENT (Hidden until verification passes) -->
     <img src="images/logo.png" alt="Excellent Institute Watermark" class="watermark-bg">
 
     <div class="portal-layout" id="main-hub-view">
@@ -409,17 +368,14 @@
                 <img src="images/logo.png" alt="Excellent Institute Logo" class="logo">
                 <h1>Excellent Institute <span>Study Portal</span></h1>
             </div>
-            
             <div class="header-actions">
+                <button class="refresh-btn" onclick="forceRefreshModules()" title="Refresh Application Data">🔄 Refresh Connections</button>
                 <div class="student-badge">🔒 Secure Gateway Connection</div>
-                <button class="refresh-btn" onclick="forceSecurityRefresh()" title="Clear cache and re-verify identity">
-                    🔄 Force Security Scan
-                </button>
             </div>
         </header>
 
         <main id="portal-categories-container">
-            <!-- JavaScript structures entries here -->
+            <!-- Dynamic Content Injected Here -->
         </main>
 
     </div>
@@ -436,6 +392,49 @@
     </div>
 
     <script>
+        // ==========================================
+        // SECURITY LOGIC
+        // ==========================================
+        
+        // If the user already proved they are the institute in a past session, skip the lock
+        if (localStorage.getItem('excellent_auth') === 'true') {
+            unlockHub();
+        }
+
+        function handleGoogleLogin(response) {
+            // Decode the secure token from Google
+            const responsePayload = decodeJwtResponse(response.credential);
+            const userEmail = responsePayload.email.toLowerCase();
+
+            // VERIFICATION CHECK
+            if (userEmail === 'excellent.institut@gmail.com') {
+                localStorage.setItem('excellent_auth', 'true');
+                unlockHub();
+            } else {
+                // Wrong email! Show the APK error.
+                document.getElementById('authError').style.display = "block";
+            }
+        }
+
+        function unlockHub() {
+            document.getElementById('security-lock-screen').remove();
+            document.body.style.visibility = "visible";
+            document.body.style.overflow = "auto";
+        }
+
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // ==========================================
+        // PORTAL HUB LOGIC
+        // ==========================================
+
         const coursesData = [
             {
                 title: "English Typing Practice",
@@ -474,6 +473,15 @@
                 bgColor: "#fce7f3"
             },
             {
+                title: "Internet & Email Usage",
+                description: "Master web navigation, secure Gmail communication, mapping, and safe browsing.",
+                url: "https://excellentinstitute.github.io/Internet-Email-Usage/",
+                category: "Fundamental Key Skills",
+                icon: "🌍",
+                color: "#0284c7",
+                bgColor: "#e0f2fe"
+            },
+            {
                 title: "Microsoft Word Complete Guide",
                 description: "Format advanced structures, write business letters, drop caps, and handle automated print settings.",
                 url: "https://excellentinstitute.github.io/MSword/",
@@ -501,6 +509,15 @@
                 bgColor: "#ffedd5"
             },
             {
+                title: "C & Data Structures",
+                description: "Master C syntax, memory management, pointers, and essential data structures like trees and queues.",
+                url: "https://excellentinstitute.github.io/C-Data-Structures/",
+                category: "Advanced Technical Modules",
+                icon: "💻",
+                color: "#0f766e",
+                bgColor: "#ccfbf1"
+            },
+            {
                 title: "Cyber Security Foundations",
                 description: "Secure private variables, lock profiles, defend system registries, and mitigate web traps.",
                 url: "https://excellentinstitute.github.io/Cyber-Security/",
@@ -510,41 +527,22 @@
                 bgColor: "#e0e7ff"
             },
             {
-                title: "C & Data Structures",
-                description: "Master C syntax, memory management, pointers, and essential data structures like trees and queues.",
-                url: "https://excellentinstitute.github.io/C-Data-Structures/",
-                category: "Advanced Technical Modules",
-                icon: "💻",
-                color: "#0f766e",
-                bgColor: "#ccfbf1"
-            },
-            // --- NEW DCA MODULES ADDED HERE ---
-            {
-                title: "Internet & Email Usage",
-                description: "Master safe web browsing, effective Google search strategies, and professional Gmail management.",
-                url: "https://excellentinstitute.github.io/Internet-Email-Usage/",
-                category: "Advanced Technical Modules",
-                icon: "🌐",
-                color: "#0284c7",
-                bgColor: "#e0f2fe"
-            },
-            {
-                title: "Digital Services & E-Gov",
-                description: "Download IDs, navigate DigiLocker, pay bills online, and operate Govt CSC portals safely.",
+                title: "Digital Services & Portals",
+                description: "Real-world E-Governance skills: Aadhaar downloads, bill payments, CSC, and DigiLocker.",
                 url: "https://excellentinstitute.github.io/Digital-Services/",
                 category: "Advanced Technical Modules",
                 icon: "🏛️",
-                color: "#4338ca",
+                color: "#4f46e5",
                 bgColor: "#e0e7ff"
             },
             {
                 title: "Photoshop & Image Editing",
-                description: "Professional photo manipulation, cropping, passport photo creation, and applying filters.",
+                description: "Professional photo manipulation, passport cropping, filters, and digital document cleaning.",
                 url: "https://excellentinstitute.github.io/Photoshop-Image-Editing/",
                 category: "Advanced Technical Modules",
                 icon: "🎨",
-                color: "#be185d",
-                bgColor: "#fce7f3"
+                color: "#0284c7",
+                bgColor: "#e0f2fe"
             }
         ];
 
@@ -590,9 +588,13 @@
             });
         }
 
+        // Add a cache-busting timestamp to force the iframe to reload fresh content
         function openAppViewer(targetUrl, targetTitle) {
             document.getElementById('viewer-current-title').innerText = targetTitle;
-            document.getElementById('app-viewport-iframe').src = targetUrl;
+            
+            // Appends ?refresh=123456789 to the URL to bypass browser cache
+            const cacheBusterUrl = targetUrl + "?refresh=" + new Date().getTime();
+            document.getElementById('app-viewport-iframe').src = cacheBusterUrl;
             
             document.getElementById('main-hub-view').style.display = 'none';
             document.getElementById('frame-viewer').style.display = 'flex';
@@ -603,6 +605,11 @@
             
             document.getElementById('frame-viewer').style.display = 'none';
             document.getElementById('main-hub-view').style.display = 'block';
+        }
+
+        // Force a total refresh of the main window to ensure everything is synced
+        function forceRefreshModules() {
+            window.location.reload(true);
         }
 
         window.onload = renderPortalHub;
