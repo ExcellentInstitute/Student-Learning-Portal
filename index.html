@@ -6,6 +6,94 @@
     <title>Excellent Institute - Student Learning Portal Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- 1. Load the official Google Security Script for Authentication -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- GATEKEEPER SECURITY SCRIPT -->
+    <script>
+        // Check if the user is already authenticated
+        if (localStorage.getItem('excellent_auth') !== 'true') {
+            document.addEventListener("DOMContentLoaded", function() {
+                // Hide main portal content
+                document.body.style.visibility = "hidden"; 
+                document.body.style.overflow = "hidden";
+                
+                // Build the Lock Screen Overlay
+                const lockDiv = document.createElement('div');
+                lockDiv.id = "security-gatekeeper";
+                lockDiv.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;";
+                
+                lockDiv.innerHTML = `
+                    <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
+                        <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Restricted Access 🛡️</h2>
+                        <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">Please verify your Excellent Institute identity to continue.</p>
+                        
+                        <!-- The Google Sign-In Setup -->
+                        <div id="g_id_onload"
+                             data-client_id="YOUR_GOOGLE_CLIENT_ID_GOES_HERE"
+                             data-callback="handleGoogleLogin"
+                             data-auto_prompt="false">
+                        </div>
+                        
+                        <!-- The Visual Google Button -->
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="outline"
+                             data-text="sign_in_with"
+                             data-shape="rectangular"
+                             data-logo_alignment="left"
+                             style="display:flex; justify-content:center;">
+                        </div>
+                        
+                        <!-- Error Message -->
+                        <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color:#fca5a5; margin-top:20px; font-weight:600; line-height:1.5;">
+                            ❌ Access Denied.<br><br>Unauthorized account. Please use the Excellent Institute mobile APK.
+                        </div>
+                    </div>
+                `;
+                
+                document.documentElement.appendChild(lockDiv);
+            });
+        }
+
+        // This function handles the response from Google
+        function handleGoogleLogin(response) {
+            try {
+                const responsePayload = decodeJwtResponse(response.credential);
+                const userEmail = responsePayload.email.toLowerCase();
+
+                // CHECKING FOR EXACT AUTHORIZED EMAIL
+                if (userEmail === 'excellent.institut@gmail.com') {
+                    localStorage.setItem('excellent_auth', 'true');
+                    document.getElementById('security-gatekeeper').remove();
+                    document.body.style.visibility = "visible";
+                    document.body.style.overflow = "auto";
+                } else {
+                    document.getElementById('authError').style.display = "block";
+                }
+            } catch (e) {
+                console.error("Authentication Error", e);
+            }
+        }
+
+        // Decode Google's JWT token
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // Function to Force Refresh Security
+        function forceSecurityRefresh() {
+            localStorage.removeItem('excellent_auth');
+            location.reload(true); // Forces a hard reload of the page
+        }
+    </script>
+    
     <style>
         :root {
             --primary: #0f172a;
@@ -87,6 +175,12 @@
         .brand-group span {
             color: var(--accent);
         }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
         .student-badge {
             background-color: var(--primary);
@@ -96,6 +190,22 @@
             font-size: 0.85rem;
             font-weight: 600;
         }
+        
+        .refresh-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .refresh-btn:hover { background-color: #dc2626; transform: translateY(-2px); }
 
         /* --- Categories and Grids --- */
         .category-section {
@@ -264,7 +374,7 @@
             transform: translate(-50%, -50%);
             width: 45vw;
             max-width: 400px;
-            opacity: 0.03; /* Kept very subtle so text remains highly scannable */
+            opacity: 0.03;
             pointer-events: none; 
             z-index: 1;
             border-radius: 50%;
@@ -278,6 +388,7 @@
                 align-items: flex-start;
                 gap: 16px;
             }
+            .header-actions { flex-direction: column; align-items: flex-start; }
             .portal-layout {
                 padding: 20px 16px;
             }
@@ -298,11 +409,18 @@
                 <img src="images/logo.png" alt="Excellent Institute Logo" class="logo">
                 <h1>Excellent Institute <span>Study Portal</span></h1>
             </div>
-            <div class="student-badge">🔒 Secure Gateway Connection</div>
+            
+            <div class="header-actions">
+                <div class="student-badge">🔒 Secure Gateway Connection</div>
+                <button class="refresh-btn" onclick="forceSecurityRefresh()" title="Clear cache and re-verify identity">
+                    🔄 Force Security Scan
+                </button>
+            </div>
         </header>
 
         <main id="portal-categories-container">
-            </main>
+            <!-- JavaScript structures entries here -->
+        </main>
 
     </div>
 
@@ -399,6 +517,34 @@
                 icon: "💻",
                 color: "#0f766e",
                 bgColor: "#ccfbf1"
+            },
+            // --- NEW DCA MODULES ADDED HERE ---
+            {
+                title: "Internet & Email Usage",
+                description: "Master safe web browsing, effective Google search strategies, and professional Gmail management.",
+                url: "https://excellentinstitute.github.io/Internet-Email-Usage/",
+                category: "Advanced Technical Modules",
+                icon: "🌐",
+                color: "#0284c7",
+                bgColor: "#e0f2fe"
+            },
+            {
+                title: "Digital Services & E-Gov",
+                description: "Download IDs, navigate DigiLocker, pay bills online, and operate Govt CSC portals safely.",
+                url: "https://excellentinstitute.github.io/Digital-Services/",
+                category: "Advanced Technical Modules",
+                icon: "🏛️",
+                color: "#4338ca",
+                bgColor: "#e0e7ff"
+            },
+            {
+                title: "Photoshop & Image Editing",
+                description: "Professional photo manipulation, cropping, passport photo creation, and applying filters.",
+                url: "https://excellentinstitute.github.io/Photoshop-Image-Editing/",
+                category: "Advanced Technical Modules",
+                icon: "🎨",
+                color: "#be185d",
+                bgColor: "#fce7f3"
             }
         ];
 
