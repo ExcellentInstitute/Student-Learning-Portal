@@ -326,12 +326,12 @@
 <body>
 
     <!-- ========================================== -->
-    <!-- SILENT GOOGLE SECURITY VERIFICATION        -->
+    <!-- STRICT LIVE GOOGLE SECURITY VERIFICATION   -->
     <!-- ========================================== -->
     <div id="security-lock-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;">
         <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
             <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Verifying Connection 🛡️</h2>
-            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
+            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is conducting a live scan of your Google account clearance...</p>
             
             <!-- Google Sign-In Setup with your official Client ID -->
             <div id="g_id_onload"
@@ -358,7 +358,7 @@
         </div>
     </div>
 
-    <!-- MAIN HUB CONTENT (Hidden until verification passes) -->
+    <!-- MAIN HUB CONTENT (Hidden until live verification passes) -->
     <img src="images/logo.png" alt="Excellent Institute Watermark" class="watermark-bg">
 
     <div class="portal-layout" id="main-hub-view">
@@ -393,13 +393,11 @@
 
     <script>
         // ==========================================
-        // SECURITY LOGIC
+        // SECURITY LOGIC (NO BYPASS ALLOWED)
         // ==========================================
         
-        // If the user already proved they are the institute in a past session, skip the lock
-        if (localStorage.getItem('excellent_auth') === 'true') {
-            unlockHub();
-        }
+        // Removed the localStorage bypass. 
+        // The page will force a live Google verification check every single time it loads or refreshes.
 
         function handleGoogleLogin(response) {
             // Decode the secure token from Google
@@ -408,8 +406,7 @@
 
             // VERIFICATION CHECK
             if (userEmail === 'excellent.institut@gmail.com') {
-                localStorage.setItem('excellent_auth', 'true');
-                unlockHub();
+                unlockHub(); // Only unlocks if the live scan is successful
             } else {
                 // Wrong email! Show the APK error.
                 document.getElementById('authError').style.display = "block";
