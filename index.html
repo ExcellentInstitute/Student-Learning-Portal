@@ -326,18 +326,20 @@
 <body>
 
     <!-- ========================================== -->
-    <!-- STRICT LIVE GOOGLE SECURITY VERIFICATION   -->
+    <!-- SILENT GOOGLE SECURITY VERIFICATION        -->
     <!-- ========================================== -->
     <div id="security-lock-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;">
         <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
             <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Verifying Connection 🛡️</h2>
-            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is conducting a live scan of your Google account clearance...</p>
+            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
             
             <!-- Google Sign-In Setup with your official Client ID -->
+            <!-- Added data-auto_select="true" for seamless instant scanning on refresh -->
             <div id="g_id_onload"
                  data-client_id="84127741548-i9o1v0rboqpo02vsp3lm2kodk37pdsmc.apps.googleusercontent.com"
                  data-callback="handleGoogleLogin"
-                 data-auto_prompt="true">
+                 data-auto_prompt="true"
+                 data-auto_select="true">
             </div>
             
             <!-- Fallback Visual Google Button if Auto-Prompt fails -->
@@ -358,7 +360,7 @@
         </div>
     </div>
 
-    <!-- MAIN HUB CONTENT (Hidden until live verification passes) -->
+    <!-- MAIN HUB CONTENT (Hidden until verification passes) -->
     <img src="images/logo.png" alt="Excellent Institute Watermark" class="watermark-bg">
 
     <div class="portal-layout" id="main-hub-view">
@@ -369,7 +371,7 @@
                 <h1>Excellent Institute <span>Study Portal</span></h1>
             </div>
             <div class="header-actions">
-                <button class="refresh-btn" onclick="forceRefreshModules()" title="Refresh Application Data">🔄 Refresh Connections</button>
+                <button class="refresh-btn" onclick="forceRefreshModules()" title="Clear Cache and Rescan Account">🔄 Refresh Connections</button>
                 <div class="student-badge">🔒 Secure Gateway Connection</div>
             </div>
         </header>
@@ -393,11 +395,12 @@
 
     <script>
         // ==========================================
-        // SECURITY LOGIC (NO BYPASS ALLOWED)
+        // SECURITY LOGIC (STRICT MODE)
         // ==========================================
         
-        // Removed the localStorage bypass. 
-        // The page will force a live Google verification check every single time it loads or refreshes.
+        // 1. Force clear any old cached authentications on EVERY refresh.
+        // This ensures the system NEVER bypasses the Gmail scanner.
+        localStorage.removeItem('excellent_auth');
 
         function handleGoogleLogin(response) {
             // Decode the secure token from Google
@@ -406,7 +409,9 @@
 
             // VERIFICATION CHECK
             if (userEmail === 'excellent.institut@gmail.com') {
-                unlockHub(); // Only unlocks if the live scan is successful
+                // 2. Grant temporary access so the inner iframes can unlock
+                localStorage.setItem('excellent_auth', 'true');
+                unlockHub();
             } else {
                 // Wrong email! Show the APK error.
                 document.getElementById('authError').style.display = "block";
@@ -606,7 +611,9 @@
 
         // Force a total refresh of the main window to ensure everything is synced
         function forceRefreshModules() {
-            window.location.reload(true);
+            // Drop any saved auth tokens and force the browser to request new cache
+            localStorage.removeItem('excellent_auth');
+            window.location.href = window.location.href.split('?')[0] + "?refresh=" + new Date().getTime();
         }
 
         window.onload = renderPortalHub;
