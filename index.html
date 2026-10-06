@@ -357,9 +357,6 @@
             .watermark-bg {
                 width: 75vw;
             }
-            .quick-nav {
-                justify-content: center;
-            }
         }
     </style>
 </head>
@@ -374,6 +371,7 @@
             <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
             
             <!-- Google Sign-In Setup with your official Client ID -->
+            <!-- Added data-auto_select="true" for seamless instant scanning on refresh -->
             <div id="g_id_onload"
                  data-client_id="84127741548-i9o1v0rboqpo02vsp3lm2kodk37pdsmc.apps.googleusercontent.com"
                  data-callback="handleGoogleLogin"
@@ -415,12 +413,6 @@
             </div>
         </header>
 
-        <!-- Quick Navigation Bar -->
-        <nav class="quick-nav" id="quick-nav-container">
-            <div style="width: 100%; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">Quick Jump Navigation</div>
-            <!-- Buttons injected by JS -->
-        </nav>
-
         <main id="portal-categories-container">
             <!-- Dynamic Content Injected Here -->
         </main>
@@ -443,16 +435,22 @@
         // SECURITY LOGIC (STRICT MODE)
         // ==========================================
         
+        // 1. Force clear any old cached authentications on EVERY refresh.
+        // This ensures the system NEVER bypasses the Gmail scanner.
         localStorage.removeItem('excellent_auth');
 
         function handleGoogleLogin(response) {
+            // Decode the secure token from Google
             const responsePayload = decodeJwtResponse(response.credential);
             const userEmail = responsePayload.email.toLowerCase();
 
+            // VERIFICATION CHECK
             if (userEmail === 'excellent.institut@gmail.com') {
+                // 2. Grant temporary access so the inner iframes can unlock
                 localStorage.setItem('excellent_auth', 'true');
                 unlockHub();
             } else {
+                // Wrong email! Show the APK error.
                 document.getElementById('authError').style.display = "block";
             }
         }
@@ -476,150 +474,155 @@
         // PORTAL HUB LOGIC
         // ==========================================
 
-        // Data reorganized into 4 clean, distinct categories for easy browsing
         const coursesData = [
-            // CATEGORY 1: Computer Basics
             {
                 title: "English Typing Practice",
                 description: "Master speed alignment, touch-typing muscle patterns, and error correction keys.",
                 url: "https://excellentinstitute.github.io/typing/",
-                category: "Computer Basics & Fundamentals",
-                icon: "⌨️", color: "#10b981", bgColor: "#e0f2fe"
-            },
-            {
-                title: "Computer Fundamentals",
-                description: "Core binary memory concepts, structural operations, and introductory execution blocks.",
-                url: "https://excellentinstitute.github.io/fundamental/",
-                category: "Computer Basics & Fundamentals",
-                icon: "🧠", color: "#f59e0b", bgColor: "#fef3c7"
-            },
-            {
-                title: "Operating Systems (OS)",
-                description: "Understanding file hierarchies, environments, system operations, and setup properties.",
-                url: "https://excellentinstitute.github.io/OS/",
-                category: "Computer Basics & Fundamentals",
-                icon: "💽", color: "#ec4899", bgColor: "#fce7f3"
+                category: "Fundamental Key Skills",
+                icon: "⌨️",
+                color: "#10b981",
+                bgColor: "#e0f2fe"
             },
             {
                 title: "Hardware Components",
                 description: "Deep dive inspection inside architecture, motherboard processing units, and configurations.",
                 url: "https://excellentinstitute.github.io/components/",
-                category: "Computer Basics & Fundamentals",
-                icon: "🔌", color: "#6366f1", bgColor: "#e0e7ff"
+                category: "Fundamental Key Skills",
+                icon: "🔌",
+                color: "#6366f1",
+                bgColor: "#e0e7ff"
+            },
+            {
+                title: "Computer Fundamentals",
+                description: "Core binary memory concepts, structural operations, and introductory execution blocks.",
+                url: "https://excellentinstitute.github.io/fundamental/",
+                category: "Fundamental Key Skills",
+                icon: "🧠",
+                color: "#f59e0b",
+                bgColor: "#fef3c7"
+            },
+            {
+                title: "Operating Systems (OS)",
+                description: "Understanding file hierarchies, environments, system operations, and setup properties.",
+                url: "https://excellentinstitute.github.io/OS/",
+                category: "Fundamental Key Skills",
+                icon: "💽",
+                color: "#ec4899",
+                bgColor: "#fce7f3"
             },
             {
                 title: "Internet & Email Usage",
                 description: "Master web navigation, secure Gmail communication, mapping, and safe browsing.",
                 url: "https://excellentinstitute.github.io/Internet-Email-Usage/",
-                category: "Computer Basics & Fundamentals",
-                icon: "🌍", color: "#0284c7", bgColor: "#e0f2fe"
+                category: "Fundamental Key Skills",
+                icon: "🌍",
+                color: "#0284c7",
+                bgColor: "#e0f2fe"
             },
-
-            // CATEGORY 2: Office Productivity
             {
                 title: "Microsoft Word Complete Guide",
                 description: "Format advanced structures, write business letters, drop caps, and handle automated print settings.",
                 url: "https://excellentinstitute.github.io/MSword/",
-                category: "Office & Productivity",
-                icon: "📘", color: "#1e40af", bgColor: "#eff6ff"
+                category: "Office Productivity Suite",
+                icon: "📘",
+                color: "#1e40af",
+                bgColor: "#eff6ff"
             },
             {
                 title: "Microsoft Excel Masterclass",
                 description: "Harness conditional structures, mathematical equations, lookups, and Pivot data evaluation.",
                 url: "https://excellentinstitute.github.io/MSexcel/",
-                category: "Office & Productivity",
-                icon: "📊", color: "#107c41", bgColor: "#dcfce7"
+                category: "Office Productivity Suite",
+                icon: "📊",
+                color: "#107c41",
+                bgColor: "#dcfce7"
             },
             {
                 title: "Microsoft PowerPoint Masterclass",
                 description: "Build cinematic animations, dynamic transitions, slide rules, and target Action properties.",
                 url: "https://excellentinstitute.github.io/MS_powerpoint/",
-                category: "Office & Productivity",
-                icon: "📽️", color: "#c2410c", bgColor: "#ffedd5"
+                category: "Office Productivity Suite",
+                icon: "📽️",
+                color: "#c2410c",
+                bgColor: "#ffedd5"
             },
-
-            // CATEGORY 3: Accounting & Finance (NEW REARRANGEMENT)
             {
-                title: "Tally Prime (DCA / PGDCA)",
-                description: "Standard module covering GST billing, Ledger management, and Balance Sheets.",
+                title: "Tally Prime 7.0 Masterclass",
+                description: "Digital Accounting, GST billing, Ledger management, and Payroll Processing.",
                 url: "https://excellentinstitute.github.io/Tally/",
-                category: "Accounting & Finance",
-                icon: "📒", color: "#0f766e", bgColor: "#ccfbf1"
+                category: "Advanced Technical Modules",
+                icon: "📒",
+                color: "#0f766e",
+                bgColor: "#ccfbf1"
             },
             {
-                title: "Tally Prime Pro (6 Months)",
-                description: "Dedicated 150-Day intensive curriculum with daily practical assignments and advanced automation.",
-                url: "https://excellentinstitute.github.io/Tally_6_month/",
-                category: "Accounting & Finance",
-                icon: "🎓", color: "#8b5cf6", bgColor: "#ede9fe"
-            },
-
-            // CATEGORY 4: Design & Technical
-            {
-                title: "Photoshop & Image Editing",
-                description: "Professional photo manipulation, passport cropping, filters, and digital document cleaning.",
-                url: "https://excellentinstitute.github.io/Photoshop-Image-Editing/",
-                category: "Design & Technical Skills",
-                icon: "🎨", color: "#0284c7", bgColor: "#e0f2fe"
+                title: "Web Design Masterclass (PGDCA)",
+                description: "Interactive HTML, CSS, and JS coding playgrounds with live preview rendering.",
+                url: "https://excellentinstitute.github.io/webdesign/",
+                category: "Advanced Technical Modules",
+                icon: "🌐",
+                color: "#ec4899",
+                bgColor: "#fce7f3"
             },
             {
                 title: "C & Data Structures",
                 description: "Master C syntax, memory management, pointers, and essential data structures like trees and queues.",
                 url: "https://excellentinstitute.github.io/C-Data-Structures/",
-                category: "Design & Technical Skills",
-                icon: "💻", color: "#0f766e", bgColor: "#ccfbf1"
+                category: "Advanced Technical Modules",
+                icon: "💻",
+                color: "#0f766e",
+                bgColor: "#ccfbf1"
             },
             {
                 title: "Cyber Security Foundations",
                 description: "Secure private variables, lock profiles, defend system registries, and mitigate web traps.",
                 url: "https://excellentinstitute.github.io/Cyber-Security/",
-                category: "Design & Technical Skills",
-                icon: "🛡️", color: "#4338ca", bgColor: "#e0e7ff"
+                category: "Advanced Technical Modules",
+                icon: "🛡️",
+                color: "#4338ca",
+                bgColor: "#e0e7ff"
             },
             {
                 title: "Digital Services & Portals",
                 description: "Real-world E-Governance skills: Aadhaar downloads, bill payments, CSC, and DigiLocker.",
                 url: "https://excellentinstitute.github.io/Digital-Services/",
-                category: "Design & Technical Skills",
-                icon: "🏛️", color: "#4f46e5", bgColor: "#e0e7ff"
+                category: "Advanced Technical Modules",
+                icon: "🏛️",
+                color: "#4f46e5",
+                bgColor: "#e0e7ff"
+            },
+            {
+                title: "Photoshop & Image Editing",
+                description: "Professional photo manipulation, passport cropping, filters, and digital document cleaning.",
+                url: "https://excellentinstitute.github.io/Photoshop-Image-Editing/",
+                category: "Advanced Technical Modules",
+                icon: "🎨",
+                color: "#0284c7",
+                bgColor: "#e0f2fe"
             }
         ];
 
         function renderPortalHub() {
             const container = document.getElementById('portal-categories-container');
-            const quickNav = document.getElementById('quick-nav-container');
             container.innerHTML = "";
 
-            // Identify unique categories
             const categories = [...new Set(coursesData.map(course => course.category))];
 
             categories.forEach(cat => {
-                // 1. Build Quick-Jump Buttons
-                const safeId = "section-" + cat.replace(/\s+/g, '-').replace(/&/g, 'and');
-                const jumpBtn = document.createElement('button');
-                jumpBtn.className = 'nav-chip';
-                jumpBtn.innerText = cat;
-                jumpBtn.onclick = () => {
-                    document.getElementById(safeId).scrollIntoView({ behavior: 'smooth' });
-                };
-                quickNav.appendChild(jumpBtn);
-
-                // 2. Build Category Sections
                 const section = document.createElement('section');
                 section.className = 'category-section';
-                section.id = safeId;
 
                 section.innerHTML = `
                     <div class="category-title">
                         <span>📁</span> ${cat}
                     </div>
-                    <div class="category-grid" id="grid-${safeId}"></div>
+                    <div class="category-grid" id="grid-${cat.replace(/\s+/g, '-')}"></div>
                 `;
                 container.appendChild(section);
 
-                const grid = document.getElementById(`grid-${safeId}`);
+                const grid = document.getElementById(`grid-${cat.replace(/\s+/g, '-')}`);
 
-                // 3. Populate Cards inside Sections
                 coursesData.filter(c => c.category === cat).forEach(course => {
                     const card = document.createElement('div');
                     card.className = 'hub-card';
@@ -642,9 +645,11 @@
             });
         }
 
-        // Cache-busting open app logic
+        // Add a cache-busting timestamp to force the iframe to reload fresh content
         function openAppViewer(targetUrl, targetTitle) {
             document.getElementById('viewer-current-title').innerText = targetTitle;
+            
+            // Appends ?refresh=123456789 to the URL to bypass browser cache
             const cacheBusterUrl = targetUrl + "?refresh=" + new Date().getTime();
             document.getElementById('app-viewport-iframe').src = cacheBusterUrl;
             
@@ -654,11 +659,14 @@
 
         function closeAppViewer() {
             document.getElementById('app-viewport-iframe').src = "";
+            
             document.getElementById('frame-viewer').style.display = 'none';
             document.getElementById('main-hub-view').style.display = 'block';
         }
 
+        // Force a total refresh of the main window to ensure everything is synced
         function forceRefreshModules() {
+            // Drop any saved auth tokens and force the browser to request new cache
             localStorage.removeItem('excellent_auth');
             window.location.href = window.location.href.split('?')[0] + "?refresh=" + new Date().getTime();
         }
