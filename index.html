@@ -1,12 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // Helper to detect if running inside the Mobile App
+        function isMobileApp() {
+            return !!(window.ExcellentBridge || window.isExcellentMobileApp || new URLSearchParams(window.location.search).get('auth') === 'app');
+        }
+
+        // Universal Gatekeeper Script
+        if (isMobileApp()) {
+            localStorage.setItem('excellent_auth', 'true');
+        }
+
+        if (localStorage.getItem('excellent_auth') !== 'true') {
+            document.addEventListener("DOMContentLoaded", function() {
+                if (isMobileApp()) {
+                    localStorage.setItem('excellent_auth', 'true');
+                    return;
+                }
+
+                document.body.style.visibility = "hidden"; 
+                document.body.style.overflow = "hidden";
+                
+                const lockDiv = document.createElement('div');
+                lockDiv.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;";
+                
+                lockDiv.innerHTML = `
+                    <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
+                        <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Verifying Connection 🛡️</h2>
+                        <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
+                        
+                        <div id="g_id_onload"
+                             data-client_id="84127741548-i9o1v0rboqpo02vsp3lm2kodk37pdsmc.apps.googleusercontent.com"
+                             data-callback="handleGoogleLogin"
+                             data-auto_prompt="true"
+                             data-auto_select="true">
+                        </div>
+                        
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="outline"
+                             data-text="sign_in_with"
+                             data-shape="rectangular"
+                             data-logo_alignment="left"
+                             style="display:flex; justify-content:center;">
+                        </div>
+                        
+                        <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color:#fca5a5; margin-top:20px; font-weight:600; line-height:1.5;">
+                            ❌ Access Denied.<br><br>Unauthorized account detected. Please use the Excellent Institute mobile APK to view this content.
+                        </div>
+                    </div>
+                `;
+                document.documentElement.appendChild(lockDiv);
+            });
+        }
+
+        function handleGoogleLogin(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            const userEmail = responsePayload.email.toLowerCase();
+
+            if (userEmail === 'excellent.institut@gmail.com') {
+                localStorage.setItem('excellent_auth', 'true');
+                unlockHub();
+            } else {
+                document.getElementById('authError').style.display = "block";
+            }
+        }
+
+        function unlockHub() {
+            const lockScreen = document.getElementById('security-lock-screen');
+            if (lockScreen) lockScreen.remove();
+            document.body.style.visibility = "visible";
+            document.body.style.overflow = "auto";
+        }
+
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excellent Institute - Student Learning Portal Hub</title>
-    
-    <!-- 1. Load the official Google Security Script for Silent Verification -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -37,8 +118,7 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            /* Hide body initially until Google verification passes */
-            visibility: hidden; 
+            visibility: hidden; /* Handled by JS gatekeeper */
         }
 
         /* --- Custom Scrollbar --- */
@@ -132,7 +212,7 @@
             transform: translateY(-1px);
         }
 
-        /* --- NEW: Advanced Search & Filter Sticky Nav --- */
+        /* --- Advanced Search & Filter Sticky Nav --- */
         .quick-nav {
             display: flex;
             flex-direction: column;
@@ -447,37 +527,6 @@
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- SILENT GOOGLE SECURITY VERIFICATION        -->
-    <!-- ========================================== -->
-    <div id="security-lock-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;">
-        <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
-            <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Verifying Connection 🛡️</h2>
-            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
-            
-            <div id="g_id_onload"
-                 data-client_id="84127741548-i9o1v0rboqpo02vsp3lm2kodk37pdsmc.apps.googleusercontent.com"
-                 data-callback="handleGoogleLogin"
-                 data-auto_prompt="true"
-                 data-auto_select="true">
-            </div>
-            
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-size="large"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-shape="rectangular"
-                 data-logo_alignment="left"
-                 style="display:flex; justify-content:center;">
-            </div>
-            
-            <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color:#fca5a5; margin-top:20px; font-weight:600; line-height:1.5;">
-                ❌ Access Denied.<br><br>Unauthorized account detected. Please use the Excellent Institute mobile APK to view this content.
-            </div>
-        </div>
-    </div>
-
     <!-- MAIN HUB CONTENT -->
     <img src="images/logo.png" alt="Excellent Institute Watermark" class="watermark-bg" onerror="this.style.display='none'">
 
@@ -494,7 +543,7 @@
             </div>
         </header>
 
-        <!-- NEW: SMART SEARCH & FILTER NAVIGATION -->
+        <!-- SMART SEARCH & FILTER NAVIGATION -->
         <nav class="quick-nav">
             <div class="search-box">
                 <span>🔍</span>
@@ -511,7 +560,7 @@
 
     </div>
 
-    <!-- IFRAME APPLICATION VIEWER -->
+    <!-- IFRAME APPLICATION VIEWER (For Desktop/Web Only) -->
     <div id="frame-viewer">
         <nav class="viewer-navbar">
             <div class="viewer-title-group">
@@ -525,43 +574,10 @@
 
     <script>
         // ==========================================
-        // SECURITY LOGIC (STRICT MODE)
-        // ==========================================
-        localStorage.removeItem('excellent_auth');
-
-        function handleGoogleLogin(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            const userEmail = responsePayload.email.toLowerCase();
-
-            if (userEmail === 'excellent.institut@gmail.com') {
-                localStorage.setItem('excellent_auth', 'true');
-                unlockHub();
-            } else {
-                document.getElementById('authError').style.display = "block";
-            }
-        }
-
-        function unlockHub() {
-            document.getElementById('security-lock-screen').remove();
-            document.body.style.visibility = "visible";
-            document.body.style.overflow = "auto";
-        }
-
-        function decodeJwtResponse(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        // ==========================================
         // DATABASE PORTAL LOGIC 
         // ==========================================
 
         const coursesData = [
-            // --- NEW: SHORTCUT MASTER GUIDE ADDED ---
             {
                 title: "Shortcut Master Guide",
                 description: "Master your keyboard from basic to advanced. Includes interactive quizzes and printable cheat sheets.",
@@ -703,7 +719,9 @@
 
         // Initialize Portal
         function initPortal() {
-            // Generate Filter Chips
+            // Unlock body visibility (previously managed by Google Login)
+            document.body.style.visibility = "visible";
+
             const filterContainer = document.getElementById('filter-container');
             const categories = ['All', ...new Set(coursesData.map(course => course.category))];
             
@@ -736,7 +754,6 @@
             let totalRendered = 0;
 
             categories.forEach(cat => {
-                // Filter courses by category AND search query
                 const filteredCourses = coursesData.filter(c => 
                     c.category === cat && 
                     (c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -763,6 +780,8 @@
                         card.className = 'hub-card';
                         card.style.setProperty('--card-color', course.color);
                         card.style.setProperty('--card-bg', course.bgColor);
+                        
+                        // Action Call
                         card.onclick = () => openAppViewer(course.url, course.title);
 
                         card.innerHTML = `
@@ -780,25 +799,41 @@
                 }
             });
 
-            // Show empty state if nothing matches search
             if (totalRendered === 0) {
                 container.innerHTML = `<div class="empty-state">❌ No modules found matching your search. Try adjusting your filters.</div>`;
             }
         }
 
-        // Handle Search Bar Input
         function handleFilterSearch() {
             const query = document.getElementById('searchInput').value;
             renderCards(query);
         }
 
-        // App Viewer Logic
+        // ==========================================================
+        // 🚨 UPGRADED APP VIEWER LOGIC (Handles AdMob & Native Routing)
+        // ==========================================================
         function openAppViewer(targetUrl, targetTitle) {
-            document.getElementById('viewer-current-title').innerText = targetTitle;
-            const cacheBusterUrl = targetUrl + "?refresh=" + new Date().getTime();
-            document.getElementById('app-viewport-iframe').src = cacheBusterUrl;
-            document.getElementById('main-hub-view').style.display = 'none';
-            document.getElementById('frame-viewer').style.display = 'flex';
+            // Tell Mobile App to show Interstitial Ad on launch
+            if (isMobileApp() && window.ExcellentBridge) {
+                window.ExcellentBridge.postMessage('SHOW_INTERSTITIAL_AD');
+            }
+
+            // Append auth token so sub-portals automatically unlock for mobile users
+            const authParam = targetUrl.includes('?') ? '&auth=app' : '?auth=app';
+            const finalUrl = targetUrl + authParam;
+
+            if (isMobileApp()) {
+                // Native Mobile Routing: Directly navigating ensures the Flutter JS Bridge 
+                // securely attaches to the new module window.
+                window.location.href = finalUrl;
+            } else {
+                // Desktop/Web Routing: Opens seamlessly in the iframe overlay
+                document.getElementById('viewer-current-title').innerText = targetTitle;
+                const cacheBusterUrl = finalUrl + "&refresh=" + new Date().getTime();
+                document.getElementById('app-viewport-iframe').src = cacheBusterUrl;
+                document.getElementById('main-hub-view').style.display = 'none';
+                document.getElementById('frame-viewer').style.display = 'flex';
+            }
         }
 
         function closeAppViewer() {
