@@ -8,20 +8,23 @@
     <!-- 1. Load the official Google Security Script for Silent Verification -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #0f172a;
+            --primary-light: #1e293b;
             --accent: #10b981;
             --accent-hover: #059669;
-            --background: #f8fafc;
+            --background: #f1f5f9;
             --surface: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
             --radius: 16px;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -34,6 +37,9 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--background);
+            /* Advanced Dot Pattern Background */
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
@@ -42,10 +48,10 @@
         }
 
         /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; border: 2px solid var(--background);}
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
         /* --- Master Grid Layout --- */
         .portal-layout {
@@ -53,19 +59,26 @@
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 24px;
+            padding: 30px 24px;
             position: relative;
             z-index: 2;
         }
 
-        /* --- Header Section --- */
+        /* --- Glassmorphism Header --- */
         .hub-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 25px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 15px;
+            z-index: 100;
         }
 
         .brand-group {
@@ -80,19 +93,18 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--accent);
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+            background: white;
         }
 
         .brand-group h1 {
             font-size: 1.8rem;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--primary);
             letter-spacing: -0.02em;
         }
 
-        .brand-group span {
-            color: var(--accent);
-        }
+        .brand-group span { color: var(--accent); }
 
         .header-actions {
             display: flex;
@@ -101,63 +113,74 @@
         }
 
         .student-badge {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 30px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
+            box-shadow: var(--shadow-sm);
         }
 
         .refresh-btn {
             background-color: var(--surface);
             color: var(--text-main);
             border: 1px solid var(--border);
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             cursor: pointer;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
 
-        .refresh-btn:hover {
-            background-color: var(--border);
-        }
+        .refresh-btn:hover { background-color: var(--background); transform: translateY(-1px); }
 
-        /* --- New: Quick-Jump Filter Navigation --- */
+        /* --- UPGRADED: Dynamic Filter Navigation (Solves Scrolling Issue) --- */
         .quick-nav {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 40px;
-            padding: 15px;
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
+            justify-content: center;
         }
 
         .nav-chip {
-            background: var(--background);
-            border: 1px solid var(--border);
-            padding: 10px 20px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            padding: 10px 24px;
             border-radius: 30px;
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: var(--text-muted);
             cursor: pointer;
             transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
         .nav-chip:hover {
             border-color: var(--accent);
             color: var(--accent);
             background: #ecfdf5;
+            transform: translateY(-2px);
+        }
+
+        .nav-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+            transform: translateY(-2px);
         }
 
         /* --- Categories and Grids --- */
@@ -165,12 +188,17 @@
             margin-bottom: 50px;
             position: relative;
             z-index: 5;
-            padding-top: 20px; /* Provides breathing room when smooth scrolling */
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .category-title {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-main);
@@ -178,8 +206,8 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 10px;
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 12px;
         }
 
         .category-grid {
@@ -188,20 +216,21 @@
             gap: 24px;
         }
 
-        /* --- Cards Layout --- */
+        /* --- Advanced 3D Cards Layout --- */
         .hub-card {
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: 20px;
             padding: 28px;
             cursor: pointer;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-md);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
             transition: var(--transition);
+            backdrop-filter: blur(5px);
         }
 
         .hub-card::before {
@@ -210,59 +239,68 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
+            height: 5px;
             background-color: var(--card-color, var(--accent));
+            transition: height 0.2s ease;
         }
 
         .hub-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
             border-color: var(--card-color, var(--accent));
         }
+
+        .hub-card:hover::before { height: 8px; }
 
         .card-top {
             display: flex;
             align-items: flex-start;
-            gap: 16px;
+            gap: 18px;
             margin-bottom: 16px;
         }
 
         .card-icon {
-            font-size: 2rem;
-            width: 55px;
-            height: 55px;
+            font-size: 2.2rem;
+            width: 60px;
+            height: 60px;
             background-color: var(--card-bg, #f1f5f9);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: 16px;
+            flex-shrink: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .card-info h3 {
-            font-size: 1.15rem;
-            font-weight: 700;
+            font-size: 1.25rem;
+            font-weight: 800;
             color: var(--primary);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             line-height: 1.3;
         }
 
         .card-info p {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-muted);
             line-height: 1.5;
+            font-weight: 500;
         }
 
         .card-action-label {
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             color: var(--card-color, var(--accent));
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-top: 16px;
+            gap: 6px;
+            margin-top: 20px;
             padding-top: 16px;
             border-top: 1px solid var(--border);
+            transition: gap 0.2s;
         }
+
+        .hub-card:hover .card-action-label { gap: 10px; }
 
         /* --- Fullscreen Embedded Frame System --- */
         #frame-viewer {
@@ -284,46 +322,35 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
         .viewer-title-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
 
-        .viewer-title-group h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
+        .viewer-title-group h2 { font-size: 1.2rem; font-weight: 700; }
 
         .back-hub-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 18px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: var(--transition);
         }
 
-        .back-hub-btn:hover {
-            background-color: var(--accent);
-            border-color: var(--accent);
-        }
+        .back-hub-btn:hover { background-color: var(--accent); border-color: var(--accent); transform: translateX(-2px);}
 
-        .embedded-iframe {
-            width: 100%;
-            flex: 1;
-            border: none;
-            background-color: white;
-        }
+        .embedded-iframe { width: 100%; flex: 1; border: none; background-color: white; }
 
         /* --- Universal Background Watermark --- */
         .watermark-bg {
@@ -332,8 +359,8 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 45vw;
-            max-width: 400px;
-            opacity: 0.03; 
+            max-width: 450px;
+            opacity: 0.04; 
             pointer-events: none; 
             z-index: 1;
             border-radius: 50%;
@@ -341,22 +368,13 @@
         }
 
         /* --- Responsive Viewports --- */
-        @media (max-width: 640px) {
-            .hub-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-            .header-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .portal-layout {
-                padding: 20px 16px;
-            }
-            .watermark-bg {
-                width: 75vw;
-            }
+        @media (max-width: 768px) {
+            .hub-header { flex-direction: column; align-items: stretch; gap: 16px; border-radius: 12px;}
+            .header-actions { width: 100%; justify-content: space-between; }
+            .portal-layout { padding: 15px; }
+            .watermark-bg { width: 80vw; }
+            .quick-nav { padding: 15px 10px; border-radius: 15px;}
+            .nav-chip { padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -366,12 +384,11 @@
     <!-- SILENT GOOGLE SECURITY VERIFICATION        -->
     <!-- ========================================== -->
     <div id="security-lock-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0f172a; z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; visibility:visible;">
-        <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:400px;">
-            <h2 style="margin-bottom:10px; color:#10b981; font-size:1.8rem;">Verifying Connection 🛡️</h2>
-            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.5;">The system is checking your Google account clearance...</p>
+        <div style="background:#1e293b; padding:40px; border-radius:20px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; max-width:90%; width:420px;">
+            <h2 style="margin-bottom:12px; color:#10b981; font-size:1.9rem; font-weight:800;">Verifying Connection 🛡️</h2>
+            <p style="color:#94a3b8; margin-bottom:25px; line-height:1.6; font-size:1.05rem;">The system is checking your Google account clearance...</p>
             
             <!-- Google Sign-In Setup with your official Client ID -->
-            <!-- Added data-auto_select="true" for seamless instant scanning on refresh -->
             <div id="g_id_onload"
                  data-client_id="84127741548-i9o1v0rboqpo02vsp3lm2kodk37pdsmc.apps.googleusercontent.com"
                  data-callback="handleGoogleLogin"
@@ -391,30 +408,36 @@
             </div>
             
             <!-- Error Message for wrong email -->
-            <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color:#fca5a5; margin-top:20px; font-weight:600; line-height:1.5;">
+            <div id="authError" style="display:none; background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; padding: 18px; border-radius: 12px; color:#fca5a5; margin-top:25px; font-weight:600; line-height:1.6;">
                 ❌ Access Denied.<br><br>Unauthorized account detected. Please use the Excellent Institute mobile APK to view this content.
             </div>
         </div>
     </div>
 
     <!-- MAIN HUB CONTENT (Hidden until verification passes) -->
-    <img src="images/logo.png" alt="Excellent Institute Watermark" class="watermark-bg">
+    <!-- Put your actual logo file name below -->
+    <img src="YOUR_GITHUB_LOGO_URL.png" alt="Excellent Institute Watermark" class="watermark-bg" onerror="this.style.display='none'">
 
     <div class="portal-layout" id="main-hub-view">
         
         <header class="hub-header">
             <div class="brand-group">
-                <img src="images/logo.png" alt="Excellent Institute Logo" class="logo">
+                <img src="YOUR_GITHUB_LOGO_URL.png" alt="Excellent Institute Logo" class="logo" onerror="this.style.display='none'">
                 <h1>Excellent Institute <span>Study Portal</span></h1>
             </div>
             <div class="header-actions">
-                <button class="refresh-btn" onclick="forceRefreshModules()" title="Clear Cache and Rescan Account">🔄 Refresh Connections</button>
-                <div class="student-badge">🔒 Secure Gateway Connection</div>
+                <button class="refresh-btn" onclick="forceRefreshModules()" title="Clear Cache and Rescan Account">🔄 Refresh Connection</button>
+                <div class="student-badge">🔒 Secure Gateway</div>
             </div>
         </header>
 
+        <!-- Dynamic Filter Navigation (Quick-Jump) -->
+        <div class="quick-nav" id="filter-nav">
+            <!-- Filter Chips dynamically generated by JS -->
+        </div>
+
         <main id="portal-categories-container">
-            <!-- Dynamic Content Injected Here -->
+            <!-- Dynamic Category Grids Injected Here -->
         </main>
 
     </div>
@@ -425,7 +448,7 @@
                 <button class="back-hub-btn" onclick="closeAppViewer()">◀ Return to Main Hub</button>
                 <h2 id="viewer-current-title">Loading Module...</h2>
             </div>
-            <div style="font-size: 0.85rem; opacity: 0.7; font-weight: 500;">Excellent Institute Portal Environment</div>
+            <div style="font-size: 0.9rem; opacity: 0.8; font-weight: 600; letter-spacing: 0.5px;">Excellent Institute Portal Environment</div>
         </nav>
         <iframe src="" id="app-viewport-iframe" class="embedded-iframe" title="Note Viewport"></iframe>
     </div>
@@ -434,23 +457,16 @@
         // ==========================================
         // SECURITY LOGIC (STRICT MODE)
         // ==========================================
-        
-        // 1. Force clear any old cached authentications on EVERY refresh.
-        // This ensures the system NEVER bypasses the Gmail scanner.
         localStorage.removeItem('excellent_auth');
 
         function handleGoogleLogin(response) {
-            // Decode the secure token from Google
             const responsePayload = decodeJwtResponse(response.credential);
             const userEmail = responsePayload.email.toLowerCase();
 
-            // VERIFICATION CHECK
             if (userEmail === 'excellent.institut@gmail.com') {
-                // 2. Grant temporary access so the inner iframes can unlock
                 localStorage.setItem('excellent_auth', 'true');
                 unlockHub();
             } else {
-                // Wrong email! Show the APK error.
                 document.getElementById('authError').style.display = "block";
             }
         }
@@ -471,10 +487,21 @@
         }
 
         // ==========================================
-        // PORTAL HUB LOGIC
+        // PORTAL HUB LOGIC & DATA
         // ==========================================
 
         const coursesData = [
+            // --- NEW: Shortcut Master Guide ---
+            {
+                title: "Shortcut Master Guide",
+                description: "Master all keyboard shortcuts for Windows, MS Office, Browsers, VS Code, and Tally to work at lightning speed.",
+                url: "https://excellentinstitute.github.io/shortcuts/",
+                category: "Fundamental Key Skills",
+                icon: "⚡",
+                color: "#8b5cf6",
+                bgColor: "#f3e8ff"
+            },
+            // --- Existing Modules Maintained ---
             {
                 title: "English Typing Practice",
                 description: "Master speed alignment, touch-typing muscle patterns, and error correction keys.",
@@ -603,13 +630,34 @@
             }
         ];
 
-        function renderPortalHub() {
-            const container = document.getElementById('portal-categories-container');
-            container.innerHTML = "";
+        // Renders the hub and handles the filter logic to prevent endless scrolling
+        function renderPortalHub(filterCategory = 'All') {
+            const navContainer = document.getElementById('filter-nav');
+            const gridContainer = document.getElementById('portal-categories-container');
+            
+            const uniqueCategories = [...new Set(coursesData.map(c => c.category))];
 
-            const categories = [...new Set(coursesData.map(course => course.category))];
+            // 1. Build Filter Buttons (Only runs once to avoid blinking)
+            if (navContainer.innerHTML === "") {
+                let navHtml = `<button class="nav-chip active" id="filter-All" onclick="updateFilter('All')">🌟 All Modules</button>`;
+                uniqueCategories.forEach(cat => {
+                    navHtml += `<button class="nav-chip" id="filter-${cat.replace(/\s+/g, '-')}" onclick="updateFilter('${cat}')">${cat}</button>`;
+                });
+                navContainer.innerHTML = navHtml;
+            } else {
+                // Update active state of buttons
+                document.querySelectorAll('.nav-chip').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`filter-${filterCategory.replace(/\s+/g, '-')}`).classList.add('active');
+            }
 
-            categories.forEach(cat => {
+            // 2. Clear current grids
+            gridContainer.innerHTML = "";
+
+            // 3. Determine which categories to show
+            let categoriesToRender = filterCategory === 'All' ? uniqueCategories : [filterCategory];
+
+            // 4. Render selected categories
+            categoriesToRender.forEach(cat => {
                 const section = document.createElement('section');
                 section.className = 'category-section';
 
@@ -619,7 +667,7 @@
                     </div>
                     <div class="category-grid" id="grid-${cat.replace(/\s+/g, '-')}"></div>
                 `;
-                container.appendChild(section);
+                gridContainer.appendChild(section);
 
                 const grid = document.getElementById(`grid-${cat.replace(/\s+/g, '-')}`);
 
@@ -638,18 +686,20 @@
                                 <p>${course.description}</p>
                             </div>
                         </div>
-                        <div class="card-action-label">Launch Application Environment →</div>
+                        <div class="card-action-label">Launch Environment <span>→</span></div>
                     `;
                     grid.appendChild(card);
                 });
             });
         }
 
-        // Add a cache-busting timestamp to force the iframe to reload fresh content
+        // Helper to update filter from buttons
+        function updateFilter(category) {
+            renderPortalHub(category);
+        }
+
         function openAppViewer(targetUrl, targetTitle) {
             document.getElementById('viewer-current-title').innerText = targetTitle;
-            
-            // Appends ?refresh=123456789 to the URL to bypass browser cache
             const cacheBusterUrl = targetUrl + "?refresh=" + new Date().getTime();
             document.getElementById('app-viewport-iframe').src = cacheBusterUrl;
             
@@ -659,19 +709,17 @@
 
         function closeAppViewer() {
             document.getElementById('app-viewport-iframe').src = "";
-            
             document.getElementById('frame-viewer').style.display = 'none';
             document.getElementById('main-hub-view').style.display = 'block';
         }
 
-        // Force a total refresh of the main window to ensure everything is synced
         function forceRefreshModules() {
-            // Drop any saved auth tokens and force the browser to request new cache
             localStorage.removeItem('excellent_auth');
             window.location.href = window.location.href.split('?')[0] + "?refresh=" + new Date().getTime();
         }
 
-        window.onload = renderPortalHub;
+        // Initialize App
+        window.onload = () => renderPortalHub('All');
     </script>
 </body>
 </html>
